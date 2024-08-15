@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Name Numerology Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        label, input, button {
+            display: block;
+            margin: 10px 0;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            text-align: center;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .alphabet-cell {
+            background-color: black;
+            color: white;
+        }
+        .chinese-cell {
+            background-color: blue;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Name Numerology Calculator</h1>
+        <label for="nameInput">Enter Name or Numbers:</label>
+        <input type="text" id="nameInput" placeholder="Enter name or numbers here" onkeypress="if(event.key === 'Enter') calculateNumerology();">
+        <button onclick="calculateNumerology()">Calculate</button>
+        <div class="result" id="result"></div>
+        
+        <h2>Letter to Number Table</h2>
+        <table id="letterNumberTable"></table>
+        
+        <h2>Pair Meanings</h2>
+        <table id="pairMeaningTable"></table>
+    </div>
+
+    <script>
+        function letterToNumber(letter) {
+            const mapping = {
+                'A': '01', 'B': '02', 'C': '03', 'D': '04', 'E': '05', 'F': '06', 'G': '07',
+                'H': '08', 'I': '09', 'J': '10', 'K': '11', 'L': '12', 'M': '13', 'N': '14',
+                'O': '15', 'P': '16', 'Q': '17', 'R': '18', 'S': '19', 'T': '20', 'U': '21',
+                'V': '22', 'W': '23', 'X': '24', 'Y': '25', 'Z': '26'
+            };
+            return mapping[letter.toUpperCase()] || letter;
+        }
+
+        function truncateZerosAndFives(sequence) {
+            return sequence.replace(/0|5/g, '');
+        }
+
+        function nameToNumbers(name) {
+            let sequence = '';
+            for (let char of name) {
+                sequence += letterToNumber(char);
+            }
+            return sequence;
+        }
+
+        function createPairs(sequence) {
+            const pairs = [];
+            for (let i = 0; i < sequence.length - 1; i++) {
+                pairs.push(parseInt(sequence.substring(i, i + 2)));
+            }
+            return pairs;
+        }
+
+        function pairMeaning(pair) {
+            const meanings = {
+                13: '13 - Wealth (财富)', 31: '31 - Wealth (财富)', 27: '27 - Wealth (财富)', 72: '72 - Wealth (财富)', 49: '49 - Wealth (财富)', 94: '94 - Wealth (财富)', 86: '86 - Wealth (财富)', 68: '68 - Wealth (财富)',
+                14: '14 - Prosperity (人缘)', 41: '41 - Prosperity (人缘)', 28: '28 - Prosperity (人缘)', 82: '82 - Prosperity (人缘)', 39: '39 - Prosperity (人缘)', 93: '93 - Prosperity (人缘)', 67: '67 - Prosperity (人缘)', 76: '76 - Prosperity (人缘)',
+                19: '19 - Success (成功)', 91: '91 - Success (成功)', 26: '26 - Success (成功)', 62: '62 - Success (成功)', 34: '34 - Success (成功)', 43: '43 - Success (成功)', 78: '78 - Success (成功)', 87: '87 - Success (成功)',
+                18: '18 - Danger (凶险)', 24: '24 - Danger (凶险)', 36: '36 - Danger (凶险)', 79: '79 - Danger (凶险)', 81: '81 - Danger (凶险)', 42: '42 - Danger (凶险)', 63: '63 - Danger (凶险)', 97: '97 - Danger (凶险)',
+                16: '16 - Charm (桃花)', 29: '29 - Charm (桃花)', 38: '38 - Charm (桃花)', 47: '47 - Charm (桃花)', 61: '61 - Charm (桃花)', 92: '92 - Charm (桃花)', 83: '83 - Charm (桃花)', 74: '74 - Charm (桃花)',
+                17: '17 - Illness (病痛)', 23: '23 - Illness (病痛)', 46: '46 - Illness (病痛)', 89: '89 - Illness (病痛)', 71: '71 - Illness (病痛)', 32: '32 - Illness (病痛)', 64: '64 - Illness (病痛)', 98: '98 - Illness (病痛)',
+                12: '12 - Loneliness (孤独)', 37: '37 - Loneliness (孤独)', 48: '48 - Loneliness (孤独)', 69: '69 - Loneliness (孤独)', 21: '21 - Loneliness (孤独)', 73: '73 - Loneliness (孤独)', 84: '84 - Loneliness (孤独)', 96: '96 - Loneliness (孤独)',
+                11: '11 - Waiting (等待)', 22: '22 - Waiting (等待)', 33: '33 - Waiting (等待)', 44: '44 - Waiting (等待)', 66: '66 - Waiting (等待)', 77: '77 - Waiting (等待)', 88: '88 - Waiting (等待)', 99: '99 - Waiting (等待)'
+            };
+            return meanings[pair] || `${pair} - Unknown/Bad`;
+        }
+
+       function calculateNumerology() {
+    const name = document.getElementById('nameInput').value.replace(/ /g, ''); // Remove spaces
+    let originalSequence = [];
+    let sequence = '';
+    for (let char of name) {
+        let num = letterToNumber(char);
+        originalSequence.push(`${char.toUpperCase()}(${num})`);
+        sequence += num;
+    }
+    sequence = truncateZerosAndFives(sequence);
+    const pairs = createPairs(sequence);
+    const meanings = pairs.map(pair => pairMeaning(pair));
+    const goodPairs = [13, 31, 27, 72, 49, 94, 68, 86, 14, 41, 28, 82, 39, 93, 67, 76, 19, 91, 26, 62, 34, 43, 78, 87, 16, 29, 38, 47, 61, 92, 83, 74];
+    const goodCount = pairs.filter(pair => goodPairs.includes(pair)).length;
+    const totalCount = pairs.length;
+    const luckPercentage = totalCount > 0 ? (goodCount / totalCount) * 100 : 0;
+
+    let advice = 'Bad Name';
+    let resultColor = '#CA0C3A';
+
+    if (luckPercentage >= 71) {
+        advice = 'Good Name';
+        resultColor = '#57D922';
+    } else if (luckPercentage >= 50) {
+        advice = 'Moderate Name';
+        resultColor = '#FCB300';
+    }
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <p>Original Sequence: ${originalSequence.join(', ')}</p>
+        <p>Sequence: ${sequence.split('').join('')}</p>
+        <p>Pairs: ${pairs.join(', ')}</p>
+        <p>Meanings: ${meanings.join(', ')}</p>
+      <p>Luck Percentage: <span style="background-color: ${resultColor}; font-weight: bold; font-size: 30px; color: white;">${luckPercentage.toFixed(2)}%</span></p>
+    <p>Advice: <span style="background-color: ${resultColor}; font-weight: bold; font-size: 30px; color: white;">${advice}</span></p>
+
+    `;
+}
+
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const letterNumberTable = document.getElementById('letterNumberTable');
+            const rows = [
+                ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
+                ['01', '02', '03', '04', '05', '06', '07'],
+                ['H', 'I', 'J', 'K', 'L', 'M', 'N'],
+                ['08', '09', '10', '11', '12', '13', '14'],
+                ['O', 'P', 'Q', 'R', 'S', 'T', 'U'],
+                ['15', '16', '17', '18', '19', '20', '21'],
+                ['V', 'W', 'X', 'Y', 'Z'],
+                ['22', '23', '24', '25', '26']
+            ];
+
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                row.forEach((cell, cellIndex) => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    if (rowIndex % 2 === 0) { // Apply styles to alphabet cells
+                        td.classList.add('alphabet-cell');
+                    }
+                    tr.appendChild(td);
+                });
+                letterNumberTable.appendChild(tr);
+            });
+
+            const pairMeaningTable = document.getElementById('pairMeaningTable');
+            const pairMeanings = [
+                ['13', '27', '49', '68', '财富', '31', '72', '94', '86'],
+                ['14', '28', '39', '67', '人缘', '41', '82', '93', '76'],
+                ['19', '26', '34', '78', '成功', '91', '62', '43', '87'],
+                ['18', '24', '36', '79', '凶险', '81', '42', '63', '97'],
+                ['16', '29', '38', '47', '桃花', '61', '92', '83', '74'],
+                ['17', '23', '46', '89', '病痛', '71', '32', '64', '98'],
+                ['12', '37', '48', '69', '孤独', '21', '73', '84', '96'],
+                ['11', '22', '33', '44', '等待', '66', '77', '88', '99']
+            ];
+
+            pairMeanings.forEach((row) => {
+                const tr = document.createElement('tr');
+                row.forEach((cell) => {
+                    const td = document.createElement('td');
+                    td.textContent = cell;
+                    if (isNaN(cell)) { // Apply styles to Chinese wording cells
+                        td.classList.add('chinese-cell');
+                    }
+                    tr.appendChild(td);
+                });
+                pairMeaningTable.appendChild(tr);
+            });
+        });
+    </script>
+</body>
+</html>
